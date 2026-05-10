@@ -1,0 +1,17 @@
+# Spring Boot
+target/
+*.jar
+*.war
+.mvn/
+application-dev.properties
+
+# React / Node
+node_modules/
+build/
+dist/
+.env
+
+# IDEs
+.idea/
+*.iml
+.vscode/
