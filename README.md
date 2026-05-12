@@ -1,4 +1,4 @@
-# Skill Market - E-Commerce Platform
+# Product Sell Project - E-Commerce Platform
 
 A full-stack e-commerce web application built with **Spring Boot** (Backend) and **React** (Frontend). This platform supports multiple user roles, allowing sellers to manage their inventory and customers to browse and purchase products seamlessly.
 
@@ -29,10 +29,10 @@ A full-stack e-commerce web application built with **Spring Boot** (Backend) and
 * Java 21
 * Spring Boot 4.0.3
 * Spring Security (JWT Authentication)
-* Spring Data JPA / Hibernate
+* Spring Data MongoDB
 
 **Infrastructure & Tools:**
-* Database: MySQL / PostgreSQL (Update based on your DB)
+* Database: MongoDB
 * Build Tool: Maven
 * Version Control: Git & GitHub
 
@@ -44,12 +44,12 @@ Follow these instructions to set up the project locally on your machine.
 * Java Development Kit (JDK) 21
 * Node.js and npm (Node Package Manager)
 * Maven
-* A running instance of your chosen Database (e.g., MySQL)
+* A running instance of MongoDB (Local or MongoDB Atlas)
 
 ### Backend Setup (Spring Boot)
 1. Navigate to the backend directory.
-2. Open `src/main/resources/application.properties` and configure your database credentials:
+2. Open `src/main/resources/application.properties` and configure your MongoDB connection:
    ```properties
-   spring.datasource.url=jdbc:mysql://localhost:3306/skillmarket
-   spring.datasource.username=your_db_username
-   spring.datasource.password=your_db_password
+   spring.data.mongodb.uri=mongodb://localhost:27017/productsell
+   # Or use MongoDB Atlas URI
+   # spring.data.mongodb.uri=mongodb+srv://<username>:<password>@cluster.mongodb.net/productsell
