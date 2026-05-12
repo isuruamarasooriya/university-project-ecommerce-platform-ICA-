@@ -35,6 +35,11 @@ public class AuthService {
     private JwtUtil jwtUtil;
 
     public void registerUser(RegisterRequest registerRequest) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        if (registerRequest.getEmail() == null || !registerRequest.getEmail().matches(emailRegex)) {
+            throw new RuntimeException("Error: Invalid email format!");
+        }
+
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new RuntimeException("Error: Email is already in use!");
         }

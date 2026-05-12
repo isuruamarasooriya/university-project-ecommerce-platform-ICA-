@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Typography, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions,
+  FormControl, InputLabel, Select, MenuItem,
   Card, CardContent, CardMedia, IconButton, CircularProgress, Tabs, Tab, Box,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Chip, Collapse, Divider, Alert, Snackbar
@@ -145,7 +146,21 @@ const MyProductsTab = () => {
           <TextField fullWidth label="Description" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} multiline rows={3} margin="dense" />
           <div className="grid grid-cols-2 gap-4">
             <TextField fullWidth label="Price" type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} required margin="dense" />
-            <TextField fullWidth label="Category" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} required margin="dense" />
+            <FormControl fullWidth required margin="dense">
+              <InputLabel id="category-select-label">Category</InputLabel>
+              <Select
+                labelId="category-select-label"
+                value={formData.category}
+                label="Category"
+                onChange={e => setFormData({...formData, category: e.target.value})}
+              >
+                <MenuItem value="Electronics">Electronics</MenuItem>
+                <MenuItem value="Clothing">Clothing</MenuItem>
+                <MenuItem value="Home">Home</MenuItem>
+                <MenuItem value="Books">Books</MenuItem>
+                <MenuItem value="Toys">Toys</MenuItem>
+              </Select>
+            </FormControl>
           </div>
 
           <div className="mt-2">
