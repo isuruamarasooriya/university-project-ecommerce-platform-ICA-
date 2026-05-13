@@ -46,7 +46,7 @@ Follow these instructions to set up the project locally on your machine.
 * Maven
 * A running instance of MongoDB (Local or MongoDB Atlas)
 
-### Backend Setup (Spring Boot)
+### Backend Setup (Spring Boot)..
 1. Navigate to the backend directory.
 2. Open `src/main/resources/application.properties` and configure your MongoDB connection:
    ```properties
