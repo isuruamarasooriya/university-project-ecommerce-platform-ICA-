@@ -1,389 +1,52 @@
-# 🛒 MultiVendor Marketplace
+# 💎 Customer Profile Redesign & Security Integration
 
-A modern full-stack **Multi-Vendor E-Commerce Marketplace** built using **Spring Boot**, **MongoDB**, and **React Vite**. The platform delivers a premium shopping experience with advanced customer features, seller management tools, secure authentication, interactive dashboards, and responsive modern UI design.
-
-The application supports three major roles:
-
-* 👤 Customers
-* 💼 Sellers
-* 🛡️ Administrators
+This branch (`dinuka`) contains the complete redesign of the customer profile dashboard into a premium, light-mode interface, along with the corresponding backend security and order features.
 
 ---
 
-# ✨ Platform Highlights
+## 🎨 Frontend Updates (React)
 
-## 🎨 Premium Customer Experience
-
-The marketplace has been redesigned with a modern luxury-inspired UI focused on usability, performance, and engagement.
-
-### ✅ Advanced Customer Profile Dashboard
-
-The customer profile page includes:
-
-* 🌈 Dynamic mesh-gradient welcome banner
-* 👤 Animated circular profile avatars
-* ⭐ Gold membership loyalty badges
-* 📊 Account statistics overview
-* 🚚 Real-time order tracking progress bars
-* 💳 Interactive virtual VISA payment card
-* 🔐 Secure password management system
-* 🛡️ Two-Factor Authentication (2FA) controls
-* ❤️ Wishlist preview section
-* 📦 Active deliveries overview
-
----
-
-## 🛍️ Marketplace Features
-
-### 👤 Customer Features
-
-* Secure JWT Authentication
-* User Registration & Login
-* Product Browsing & Filtering
-* Dynamic Product Detail Pages
-* Shopping Cart Management
-* Interactive Wishlist System
-* Real-Time Quantity Updates
-* Multi-Payment Checkout System
-* Order Tracking & History
-* Order Cancellation System
-* Saved Payment Methods
-* Responsive Mobile Experience
+*   **Responsive Dashboard Layout (`Profile.jsx`)**:
+    *   Replaced inline styling and broken Tailwind wrappers with Material UI's `Box` model and dynamic responsive grids (`xs`, `sm`, `md`, `lg`, `xl`).
+    *   Transitioned the theme to a premium light mode (Slate-50 background, white cards, soft borders, and slate text colors).
+*   **Mesh Gradient Hero Section**:
+    *   Personalized welcome message and user initials avatar with glowing borders.
+    *   Gold Membership badge indicating loyalty tier.
+    *   Logout and Quick Update buttons with smooth animations.
+*   **Metric Grid Cards**:
+    *   Displays real-time customer statistics: *Total Orders*, *Saved Wishlist Items*, *Active Deliveries*, and *Reward Points*.
+*   **Interactive Visual Payment Card**:
+    *   Visa-inspired premium credit card interface displaying bank name, masked account number, holder name, and IFSC code.
+*   **Navigation Tabs**:
+    *   **My Profile**: Dashboard overview with recent activities and payment card.
+    *   **My Orders**: Collapsible listing of ordered items and active shipping progress tracking.
+    *   **Wishlist**: Grid view of saved items with quick "Add to Cart" and delete actions.
+    *   **Payment Settings**: Form to update banking details.
+    *   **Security & 2FA**: Working forms to update passwords and toggle database-persisted Two-Factor Authentication.
+    *   **Activity Timeline**: Log listing of account events.
 
 ---
 
-### 💼 Seller Features
+## ☕ Backend Updates (Spring Boot)
 
-* Seller Analytics Dashboard
-* Product Management System
-* Add / Update / Delete Products
-* Inventory Monitoring
-* Order Fulfillment Management
-* Shipping Status Updates
-* Revenue Statistics
-* Seller Catalog Management
-
----
-
-### 🛡️ Admin Features
-
-* User Management
-* Seller Management
-* Product Moderation
-* Order Monitoring
-* Platform Statistics
-* Marketplace Administration Controls
+*   **Password Management**:
+    *   Implemented `PUT /api/user/change-password` endpoint.
+    *   Verifies current password matches using BCrypt `PasswordEncoder` before updating database hash.
+*   **Two-Factor Authentication (2FA)**:
+    *   Implemented `GET /api/user/2fa` and `PUT /api/user/2fa` endpoints to persist 2FA switch states.
+*   **Order Cancellation**:
+    *   Implemented `PUT /api/orders/{id}/cancel` endpoint to cancel pending orders.
+*   **Product Reviews**:
+    *   Created `ReviewController.java`, `Review.java`, and `ReviewRepository.java` to support saving and retrieving product reviews.
 
 ---
 
-# 🎨 UI & Design Features
-
-The frontend is designed with a premium modern UI approach inspired by enterprise marketplaces.
-
-## Included UI Enhancements
-
-* ✨ Glassmorphism Cards
-* 🌈 Gradient Mesh Backgrounds
-* 🎬 Framer Motion Animations
-* 📱 Fully Responsive Design
-* 💡 Interactive Hover Effects
-* 🔔 Toast Notification System
-* 🧩 Modern Dashboard Layouts
-* ⚡ Smooth Page Transitions
-
----
-
-# 🛠️ Technology Stack
-
-| Layer            | Technologies                                                           |
-| ---------------- | ---------------------------------------------------------------------- |
-| Frontend         | React (Vite), Material UI (MUI), Framer Motion, Axios, React Hot Toast |
-| Backend          | Java 21, Spring Boot, Spring Security, JWT Authentication              |
-| Database         | MongoDB (Local / Atlas Cloud)                                          |
-| State Management | Zustand                                                                |
-| Build Tools      | Maven, NPM                                                             |
-| Version Control  | Git & GitHub                                                           |
-
----
-
-# 📁 Project Structure
-
-```bash
-MultiVendorMarketplace/
-│
-├── backend/
-│   ├── src/main/java/
-│   ├── src/main/resources/
-│   └── pom.xml
-│
-├── frontend/
-│   ├── src/
-│   ├── public/
-│   └── package.json
-│
-└── README.md
-```
-
----
-
-# ⚙️ Installation & Setup
-
-## 📌 Prerequisites
-
-Make sure the following are installed:
-
-* Java JDK 21+
-* Node.js v18+
-* MongoDB
-* Maven
-* Git
-
----
-
-# 🚀 Backend Setup (Spring Boot)
-
-## 1️⃣ Navigate to Backend
-
-```bash
-cd backend
-```
-
-## 2️⃣ Configure MongoDB Connection
-
-Open:
-
-```properties
-src/main/resources/application.properties
-```
-
-Update:
-
-```properties
-spring.data.mongodb.uri=mongodb://localhost:27017/productsell
-```
-
----
-
-## 3️⃣ Run Backend Server
-
-Using Maven:
-
-```bash
-mvn spring-boot:run
-```
-
-Backend runs on:
-
-```bash
-http://localhost:8080
-```
-
----
-
-# 🚀 Frontend Setup (React Vite)
-
-## 1️⃣ Navigate to Frontend
-
-```bash
-cd frontend
-```
-
-## 2️⃣ Install Dependencies
-
-```bash
-npm install
-```
-
-## 3️⃣ Start Development Server
-
-```bash
-npm run dev
-```
-
-Frontend runs on:
-
-```bash
-http://localhost:5174
-```
-
----
-
-# 🔐 Authentication & Security
-
-The platform uses:
-
-* JWT-based authentication
-* Secure password encryption
-* Role-based access control
-* Two-Factor Authentication (2FA)
-* Protected API routes
-* Secure session handling
-
----
-
-# 🛡️ Core API Endpoints
-
-## 👤 User APIs (`/api/user`)
-
-| Method | Endpoint                | Description                  |
-| ------ | ----------------------- | ---------------------------- |
-| GET    | `/wishlist`             | Get all wishlist items       |
-| POST   | `/wishlist/{productId}` | Add product to wishlist      |
-| DELETE | `/wishlist/{productId}` | Remove product from wishlist |
-| GET    | `/bank-details`         | Fetch payment details        |
-| PUT    | `/bank-details`         | Update payment details       |
-| PUT    | `/change-password`      | Update account password      |
-| GET    | `/2fa`                  | Check 2FA status             |
-| PUT    | `/2fa?enabled=true`     | Enable/Disable 2FA           |
-
----
-
-## 📦 Orders APIs (`/api/orders`)
-
-| Method | Endpoint         | Description            |
-| ------ | ---------------- | ---------------------- |
-| POST   | `/checkout`      | Place customer order   |
-| GET    | `/myorders`      | Fetch customer orders  |
-| PUT    | `/{id}/cancel`   | Cancel pending order   |
-| GET    | `/seller-orders` | Fetch seller orders    |
-| PUT    | `/{id}/status`   | Update shipping status |
-
----
-
-# 📸 Main Application Modules
-
-## 🏠 Home Marketplace
-
-* Featured products
-* Dynamic categories
-* Trending products
-* Responsive product grids
-
-## 🛒 Shopping Cart
-
-* Quantity controls
-* Payment integration
-* Coupon-ready structure
-* Order summary sidebar
-
-## ❤️ Wishlist System
-
-* Animated wishlist cards
-* Dynamic save/remove actions
-* Real-time updates
-
-## 👤 Profile Dashboard
-
-* Loyalty badge system
-* Order progress tracking
-* Saved payment cards
-* Security settings
-
-## 💼 Seller Dashboard
-
-* Sales overview
-* Revenue analytics
-* Inventory management
-* Order fulfillment panel
-
----
-
-# 🌟 Planned Future Enhancements
-
-Upcoming premium features:
-
-* 🔔 Real-time notifications
-* 💬 Buyer ↔ Seller live chat
-* ⭐ Product reviews & ratings
-* 🎟️ Coupon & discount engine
-* 📈 Advanced analytics dashboard
-* 🧠 AI product recommendations
-* 🌍 Multi-language support
-* 🌙 Dark / Light mode switching
-* 📱 Mobile application version
-
----
-
-# 📷 Recommended Screenshots
-
-Add screenshots for:
-
-* Homepage
-* Product Page
-* Shopping Cart
-* Customer Profile Dashboard
-* Seller Dashboard
-* Checkout Page
-
-Example:
-
-```md
-![Homepage](screenshots/homepage.png)
-```
-
----
-
-# 🤝 Contributing
-
-Contributions, improvements, and feature suggestions are welcome.
-
-## Steps
-
-```bash
-git clone <repository-url>
-cd MultiVendorMarketplace
-```
-
-Create a new branch:
-
-```bash
-git checkout -b feature/new-feature
-```
-
-Commit changes:
-
-```bash
-git commit -m "Added new feature"
-```
-
-Push branch:
-
-```bash
-git push origin feature/new-feature
-```
-
----
-
-# 📄 License
-
-This project is developed for educational and portfolio purposes.
-
----
-
-# 👨‍💻 Developed By
-
-Dinuka Avindra Silva
-
-Full-Stack Developer
-
-Technologies:
-
-* Java Spring Boot
-* React Vite
-* MongoDB
-* Material UI
-* Framer Motion
-
----
-
-# ⭐ Final Vision
-
-The goal of this project is to build a modern enterprise-grade multi-vendor marketplace that combines:
-
-* Amazon-like usability
-* Premium modern UI/UX
-* Secure enterprise architecture
-* Real-time marketplace interactions
-* Scalable full-stack engineering
-
-The platform is designed to evolve into a production-ready marketplace ecosystem with premium customer and seller experiences.
+## 📁 Key File Changes
+
+*   `frontend/src/pages/Profile.jsx` - Refactored responsive layout, styles, and added security/2FA API calls.
+*   `src/main/java/com/ecommerce/controller/UserController.java` - Added endpoints for changing passwords and toggling 2FA.
+*   `src/main/java/com/ecommerce/service/UserService.java` - Implemented password checks and 2FA database save states.
+*   `src/main/java/com/ecommerce/model/User.java` - Added `twoFactorEnabled` boolean property.
+*   `src/main/java/com/ecommerce/dto/ChangePasswordRequest.java` - New DTO for password payloads.
+*   `src/main/java/com/ecommerce/controller/ReviewController.java` - New controller for product reviews.
+*   `src/main/java/com/ecommerce/model/Review.java` - New MongoDB model for reviews.
