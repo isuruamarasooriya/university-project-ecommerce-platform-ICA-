@@ -94,4 +94,27 @@ public class UserService {
         userRepository.save(user);
         return bankDetails;
     }
+
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
+    public void changePassword(String email, String currentPassword, String newPassword) {
+        User user = getUserByEmail(email);
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public boolean getTwoFactorEnabled(String email) {
+        User user = getUserByEmail(email);
+        return user.isTwoFactorEnabled();
+    }
+
+    public void setTwoFactorEnabled(String email, boolean enabled) {
+        User user = getUserByEmail(email);
+        user.setTwoFactorEnabled(enabled);
+        userRepository.save(user);
+    }
 }

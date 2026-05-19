@@ -84,6 +84,14 @@ const Profile = () => {
         if (bankRes.data) {
           setBankDetails(bankRes.data);
         }
+
+        // Fetch 2FA status
+        try {
+          const tfaRes = await api.get('/user/2fa');
+          setTwoFactor(tfaRes.data);
+        } catch (e) {
+          console.error("Error fetching 2FA status", e);
+        }
       } catch (error) {
         console.error('Error fetching profile data', error);
       } finally {
@@ -736,15 +744,29 @@ const Profile = () => {
 
   const SecuritySection = () => {
     const [changePassword, setChangePassword] = useState({ current: '', new: '', confirm: '' });
-    const handlePasswordSubmit = (e) => {
+    const [updatingPassword, setUpdatingPassword] = useState(false);
+    
+    const handlePasswordSubmit = async (e) => {
       e.preventDefault();
       if (changePassword.new !== changePassword.confirm) {
         toast.error("New passwords do not match!");
         return;
       }
-      toast.success("Password updated successfully! 🔒");
-      setChangePassword({ current: '', new: '', confirm: '' });
-      addActivity("Updated account password", "🔒");
+      try {
+        setUpdatingPassword(true);
+        await api.put('/user/change-password', {
+          currentPassword: changePassword.current,
+          newPassword: changePassword.new
+        });
+        toast.success("Password updated successfully! 🔒");
+        setChangePassword({ current: '', new: '', confirm: '' });
+        addActivity("Updated account password", "🔒");
+      } catch (error) {
+        console.error("Error changing password", error);
+        toast.error(error.response?.data || "Failed to update password");
+      } finally {
+        setUpdatingPassword(false);
+      }
     };
 
     return (
@@ -789,9 +811,10 @@ const Profile = () => {
               <Button 
                 type="submit"
                 variant="contained" 
+                disabled={updatingPassword}
                 sx={{ background: 'linear-gradient(135deg, #6366f1, #3b82f6)', textTransform: 'none', fontWeight: 800, borderRadius: '12px' }}
               >
-                Change Password
+                {updatingPassword ? <CircularProgress size={20} color="inherit" /> : "Change Password"}
               </Button>
             </Box>
           </Box>
@@ -808,11 +831,18 @@ const Profile = () => {
                 control={
                   <Switch 
                     checked={twoFactor} 
-                    onChange={(e) => {
-                      setTwoFactor(e.target.checked);
-                      localStorage.setItem('2fa', e.target.checked);
-                      toast.success(e.target.checked ? "2FA Enabled!" : "2FA Disabled");
-                      addActivity(e.target.checked ? "Enabled Two-Factor Authentication" : "Disabled Two-Factor Authentication", "🛡️");
+                    onChange={async (e) => {
+                      const newChecked = e.target.checked;
+                      try {
+                        await api.put(`/user/2fa?enabled=${newChecked}`);
+                        setTwoFactor(newChecked);
+                        localStorage.setItem('2fa', newChecked);
+                        toast.success(newChecked ? "2FA Enabled!" : "2FA Disabled");
+                        addActivity(newChecked ? "Enabled Two-Factor Authentication" : "Disabled Two-Factor Authentication", "🛡️");
+                      } catch (err) {
+                        console.error("Error updating 2FA", err);
+                        toast.error("Failed to update 2FA status");
+                      }
                     }} 
                     color="primary"
                   />

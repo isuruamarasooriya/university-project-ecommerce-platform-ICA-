@@ -61,4 +61,25 @@ public class UserController {
     public ResponseEntity<BankDetails> updateBankDetails(@RequestBody BankDetails bankDetails, Authentication authentication) {
         return ResponseEntity.ok(userService.updateBankDetails(authentication.getName(), bankDetails));
     }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody com.ecommerce.dto.ChangePasswordRequest request, Authentication authentication) {
+        try {
+            userService.changePassword(authentication.getName(), request.getCurrentPassword(), request.getNewPassword());
+            return ResponseEntity.ok("Password updated successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/2fa")
+    public ResponseEntity<Boolean> getTwoFactor(Authentication authentication) {
+        return ResponseEntity.ok(userService.getTwoFactorEnabled(authentication.getName()));
+    }
+
+    @PutMapping("/2fa")
+    public ResponseEntity<Boolean> updateTwoFactor(@RequestParam boolean enabled, Authentication authentication) {
+        userService.setTwoFactorEnabled(authentication.getName(), enabled);
+        return ResponseEntity.ok(enabled);
+    }
 }

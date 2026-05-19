@@ -26,7 +26,12 @@ public class User {
 
     private BankDetails bankDetails;
 
+    private boolean twoFactorEnabled = false;
+
     public User() {}
+
+    public boolean isTwoFactorEnabled() { return twoFactorEnabled; }
+    public void setTwoFactorEnabled(boolean twoFactorEnabled) { this.twoFactorEnabled = twoFactorEnabled; }
 
     public User(String id, String email, String password, Set<Role> roles, Set<String> wishlist, List<CartItem> cart, BankDetails bankDetails) {
         this.id = id;
