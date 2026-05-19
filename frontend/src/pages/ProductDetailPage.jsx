@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Button, Chip, CircularProgress, Divider } from '@mui/material';
+import { Button, Chip, CircularProgress, Divider, TextField, Rating, Typography } from '@mui/material';
 import { ShoppingCart, Favorite, FavoriteBorder, Star, LocalShipping, Verified, ArrowBack } from '@mui/icons-material';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -25,12 +25,28 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { token, role } = useAuthStore();
+  
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
+
+  // Premium Reviews State
+  const [reviews, setReviews] = useState([]);
+  const [ratingInput, setRatingInput] = useState(5);
+  const [commentInput, setCommentInput] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  const fetchReviews = async () => {
+    try {
+      const res = await api.get(`/reviews/product/${id}`);
+      setReviews(res.data);
+    } catch (error) {
+      console.error("Error fetching reviews", error);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -44,8 +60,13 @@ export default function ProductDetailPage() {
           const wl = await api.get('/user/wishlist');
           setWishlisted(wl.data.some(p => p.id === id));
         }
-      } catch { toast.error('Product not found'); navigate('/products'); }
-      finally { setLoading(false); }
+        await fetchReviews();
+      } catch (err) { 
+        toast.error('Product not found'); 
+        navigate('/products'); 
+      } finally { 
+        setLoading(false); 
+      }
     };
     load();
     window.scrollTo(0, 0);
@@ -72,6 +93,40 @@ export default function ProductDetailPage() {
     } catch { toast.error('Error updating wishlist'); }
   };
 
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!token) { 
+      toast.error("Please sign in to write a review!");
+      navigate('/auth'); 
+      return; 
+    }
+    if (!commentInput.trim()) { 
+      toast.error("Please enter a comment!"); 
+      return; 
+    }
+    setSubmittingReview(true);
+    try {
+      await api.post('/reviews', {
+        productId: id,
+        rating: ratingInput,
+        comment: commentInput.trim()
+      });
+      toast.success("Review submitted successfully! ⭐");
+      setCommentInput('');
+      setRatingInput(5);
+      
+      // Reload product aggregates and reviews
+      const prodRes = await api.get(`/products/${id}`);
+      setProduct(prodRes.data);
+      await fetchReviews();
+    } catch (err) {
+      console.error("Error submitting review", err);
+      toast.error("Failed to submit review");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
       <Navbar />
@@ -89,6 +144,7 @@ export default function ProductDetailPage() {
     <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
       <Navbar />
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: '32px 24px' }}>
+        
         {/* Breadcrumb */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24, color: '#94A3B8', fontSize: 14 }}>
           <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, color: '#64748B', fontWeight: 600, padding: 0 }}>
@@ -101,7 +157,7 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Main area */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 40, background: '#fff', borderRadius: 24, padding: 32, border: '1px solid #F1F5F9', marginBottom: 40 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 40, background: '#fff', borderRadius: 24, padding: 32, border: '1px solid #F1F5F9', marginBottom: 40 }} className="shadow-sm">
           {/* Image gallery */}
           <div>
             <motion.div layoutId={`product-img-${product.id}`}
@@ -125,13 +181,11 @@ export default function ProductDetailPage() {
             {product.brand && <p style={{ fontSize: 12, fontWeight: 700, color: '#5B2EFF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>{product.brand}</p>}
             <h1 style={{ fontWeight: 800, fontSize: 'clamp(1.4rem,2.5vw,2rem)', color: '#1E293B', lineHeight: 1.3, marginBottom: 16 }}>{product.title}</h1>
 
-            {product.rating && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-                <StarRow rating={product.rating} />
-                <span style={{ color: '#64748B', fontSize: 14 }}>({product.reviewCount?.toLocaleString()} reviews)</span>
-                <Chip icon={<Verified style={{ fontSize: 14 }} />} label="Verified" size="small" sx={{ background: '#ECFDF5', color: '#10B981', fontWeight: 700, fontSize: 11 }} />
-              </div>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+              <StarRow rating={product.rating || 5.0} />
+              <span style={{ color: '#64748B', fontSize: 14 }}>({product.reviewCount || 0} reviews)</span>
+              <Chip icon={<Verified style={{ fontSize: 14 }} />} label="Verified" size="small" sx={{ background: '#ECFDF5', color: '#10B981', fontWeight: 700, fontSize: 11 }} />
+            </div>
 
             <div style={{ marginBottom: 20 }}>
               <span style={{ fontSize: 36, fontWeight: 900, background: 'linear-gradient(135deg,#5B2EFF,#00C6FF)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
@@ -185,6 +239,132 @@ export default function ProductDetailPage() {
               <LocalShipping fontSize="small" />
               <span style={{ fontSize: 14, fontWeight: 600 }}>Free shipping on orders over $50</span>
             </div>
+          </div>
+        </div>
+
+        {/* ── BREATHTAKING PREMIUM REVIEWS SECTION ── */}
+        <div style={{ background: '#fff', borderRadius: 24, padding: 32, border: '1px solid #F1F5F9', marginBottom: 40 }} className="shadow-sm">
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 28 }}>
+            <div>
+              <Typography variant="h5" style={{ fontWeight: 900, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Star className="text-indigo-600" style={{ fontSize: 24 }} /> Customer Reviews & Ratings
+              </Typography>
+              <p className="text-xs text-gray-500 mt-1">Read honest verified purchase opinions or share your experience with other shoppers.</p>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#F8FAFC', padding: '12px 20px', borderRadius: 16, border: '1px solid #E2E8F0' }}>
+              <Star style={{ fontSize: 32, color: '#F59E0B' }} />
+              <div>
+                <span style={{ fontSize: 24, fontWeight: 900, color: '#1E293B' }}>{product.rating ? product.rating.toFixed(1) : '5.0'}</span>
+                <span style={{ fontSize: 12, color: '#64748B', display: 'block', fontWeight: 700 }}>{reviews.length} total review{reviews.length !== 1 && 's'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32 }}>
+            
+            {/* Reviews List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <Typography variant="subtitle2" style={{ fontWeight: 800, color: '#475569' }}>Shopper Feedback ({reviews.length})</Typography>
+              {reviews.length === 0 ? (
+                <div style={{ background: '#F8FAFC', borderRadius: 16, padding: '32px 16px', textAlign: 'center', border: '1px dashed #E2E8F0' }}>
+                  <Star style={{ fontSize: 32, color: '#94A3B8', marginBottom: 8 }} />
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#475569', display: 'block' }}>No reviews yet</span>
+                  <span style={{ fontSize: 11, color: '#64748B', display: 'block', marginTop: 4 }}>Be the first to share your thoughts on this product!</span>
+                </div>
+              ) : (
+                <div className="space-y-4" style={{ maxHeight: 400, overflowY: 'auto', paddingRight: 6 }}>
+                  {reviews.map((rev, index) => {
+                    const initials = rev.customerEmail?.charAt(0).toUpperCase() || 'U';
+                    const dateStr = new Date(rev.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                    return (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        key={rev.id || index}
+                        style={{ background: '#F8FAFC', borderRadius: 16, padding: 16, border: '1px solid #F1F5F9' }}
+                      >
+                        <div style={{ display: 'flex', justify: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg, #5B2EFF, #00C6FF)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 800 }}>
+                              {initials}
+                            </div>
+                            <div>
+                              <span style={{ fontSize: 12, fontWeight: 800, color: '#1E293B', display: 'block' }}>{rev.customerEmail || 'Verified Purchaser'}</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
+                                {[1,2,3,4,5].map(i => <Star key={i} style={{ fontSize: 12, color: i <= rev.rating ? '#F59E0B' : '#E2E8F0' }} />)}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#94A3B8' }}>
+                            <span style={{ fontSize: 10, fontWeight: 700 }}>{dateStr}</span>
+                          </div>
+                        </div>
+
+                        <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.5, margin: 0 }}>{rev.comment}</p>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Submit Review Form */}
+            <div style={{ background: '#F8FAFC', borderRadius: 20, padding: 24, border: '1px solid #E2E8F0' }}>
+              <Typography variant="subtitle2" style={{ fontWeight: 800, color: '#1E293B', marginBottom: 12 }}>Write a Review</Typography>
+              
+              <form onSubmit={handleSubmitReview} className="space-y-4">
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 800, color: '#64748B', display: 'block', marginBottom: 6 }}>YOUR RATING</label>
+                  <Rating 
+                    value={ratingInput} 
+                    onChange={(event, newValue) => setRatingInput(newValue || 5)} 
+                    precision={1}
+                    size="large"
+                    sx={{ color: '#F59E0B' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 800, color: '#64748B', display: 'block', marginBottom: 6 }}>YOUR COMMENT</label>
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={4}
+                    placeholder="Describe your experience with this item. What did you like or dislike?"
+                    value={commentInput}
+                    onChange={e => setCommentInput(e.target.value)}
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px', background: '#fff' } }}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submittingReview}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg,#5B2EFF,#00C6FF)',
+                    color: '#fff',
+                    fontWeight: 800,
+                    fontSize: 13,
+                    cursor: submittingReview ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 4px 15px rgba(91,46,255,0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6
+                  }}
+                >
+                  {submittingReview ? <CircularProgress size={16} color="inherit" /> : 'Submit Review'}
+                </button>
+              </form>
+            </div>
+
           </div>
         </div>
 

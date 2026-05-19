@@ -69,9 +69,35 @@ public class OrderService {
         return savedOrder;
     }
 
-    public List<Order> getCustomerOrders(String email) {
+    public List<com.ecommerce.dto.CustomerOrderDTO> getCustomerOrders(String email) {
         User user = userService.getUserByEmail(email);
-        return orderRepository.findByCustomerId(user.getId());
+        List<Order> orders = orderRepository.findByCustomerId(user.getId());
+
+        return orders.stream().map(order -> {
+            List<com.ecommerce.dto.CustomerOrderDTO.CustomerOrderItemDTO> items = order.getItems().stream().map(item -> {
+                Product product = productRepository.findById(item.getProductId()).orElse(null);
+                String title = (product != null) ? product.getTitle() : "Unknown Product";
+                String image = (product != null) ? product.getImageUrl() : "";
+                
+                return new com.ecommerce.dto.CustomerOrderDTO.CustomerOrderItemDTO(
+                    item.getProductId(),
+                    title,
+                    image,
+                    item.getQuantity(),
+                    item.getPriceAtPurchase(),
+                    item.getQuantity() * item.getPriceAtPurchase()
+                );
+            }).collect(Collectors.toList());
+
+            return new com.ecommerce.dto.CustomerOrderDTO(
+                order.getId(),
+                items,
+                order.getTotalAmount(),
+                order.getShippingAddress(),
+                order.getStatus(),
+                order.getCreatedAt()
+            );
+        }).collect(Collectors.toList());
     }
 
     public List<SellerOrderDTO> getSellerOrders(String sellerEmail) {
@@ -113,5 +139,39 @@ public class OrderService {
             dto.setSellerItems(sellerItems);
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    public Order cancelOrder(String orderId, String customerEmail) {
+        User user = userService.getUserByEmail(customerEmail);
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (!order.getCustomerId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized: You do not own this order");
+        }
+
+        if (!"PENDING".equalsIgnoreCase(order.getStatus())) {
+            throw new RuntimeException("Cannot cancel an order that is already: " + order.getStatus());
+        }
+
+        order.setStatus("CANCELLED");
+        return orderRepository.save(order);
+    }
+
+    public Order updateOrderStatus(String orderId, String status, String sellerEmail) {
+        User seller = userService.getUserByEmail(sellerEmail);
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Verify that the seller owns at least one item in the order
+        boolean ownsItem = order.getItems().stream()
+                .anyMatch(item -> seller.getId().equals(item.getSellerId()));
+
+        if (!ownsItem) {
+            throw new RuntimeException("Unauthorized: You do not own any items in this order");
+        }
+
+        order.setStatus(status);
+        return orderRepository.save(order);
     }
 }

@@ -9,16 +9,20 @@ public class ProductRequest {
     private String category;
     private List<String> tags;
     private String imageUrl;
+    private Integer stock;
+    private Double discount;
 
     public ProductRequest() {}
 
-    public ProductRequest(String title, String description, Double price, String category, List<String> tags, String imageUrl) {
+    public ProductRequest(String title, String description, Double price, String category, List<String> tags, String imageUrl, Integer stock, Double discount) {
         this.title = title;
         this.description = description;
         this.price = price;
         this.category = category;
         this.tags = tags;
         this.imageUrl = imageUrl;
+        this.stock = stock;
+        this.discount = discount;
     }
 
     public String getTitle() { return title; }
@@ -38,4 +42,10 @@ public class ProductRequest {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public Integer getStock() { return stock; }
+    public void setStock(Integer stock) { this.stock = stock; }
+
+    public Double getDiscount() { return discount; }
+    public void setDiscount(Double discount) { this.discount = discount; }
 }

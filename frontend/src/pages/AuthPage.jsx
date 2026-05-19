@@ -26,7 +26,7 @@ export default function AuthPage() {
       const url = isLogin ? '/auth/login' : '/auth/register';
       const res = await api.post(url, form);
       if (isLogin) {
-        login(res.data.token, res.data.role);
+        login(res.data.token, res.data.role, res.data.email);
         const role = res.data.role;
         if (role === 'ADMIN') navigate('/admin');
         else if (role === 'SELLER') navigate('/seller-dashboard');
