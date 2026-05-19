@@ -29,12 +29,32 @@ public class OrderController {
     }
 
     @GetMapping("/myorders")
-    public ResponseEntity<List<Order>> getMyOrders(Authentication authentication) {
+    public ResponseEntity<List<com.ecommerce.dto.CustomerOrderDTO>> getMyOrders(Authentication authentication) {
         return ResponseEntity.ok(orderService.getCustomerOrders(authentication.getName()));
     }
 
     @GetMapping("/seller-orders")
     public ResponseEntity<List<SellerOrderDTO>> getSellerOrders(Authentication authentication) {
         return ResponseEntity.ok(orderService.getSellerOrders(authentication.getName()));
+    }
+
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelOrder(@PathVariable String id, Authentication authentication) {
+        try {
+            Order order = orderService.cancelOrder(id, authentication.getName());
+            return ResponseEntity.ok(order);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateOrderStatus(@PathVariable String id, @RequestParam String status, Authentication authentication) {
+        try {
+            Order order = orderService.updateOrderStatus(id, status, authentication.getName());
+            return ResponseEntity.ok(order);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

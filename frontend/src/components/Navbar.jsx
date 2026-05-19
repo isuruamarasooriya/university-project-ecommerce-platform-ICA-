@@ -25,6 +25,7 @@ export default function Navbar() {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState(null);
   const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -38,8 +39,10 @@ export default function Navbar() {
   useEffect(() => {
     if (token) {
       api.get('/user/cart').then(r => setCartCount(r.data?.length || 0)).catch(() => {});
+      api.get('/user/wishlist').then(r => setWishlistCount(r.data?.length || 0)).catch(() => {});
     } else {
       setCartCount(0);
+      setWishlistCount(0);
     }
   }, [token, location]);
 
@@ -76,7 +79,7 @@ export default function Navbar() {
               MultiVendor
             </span>
           </Link>
-
+ 
           {/* Search bar */}
           <form onSubmit={handleSearch} style={{ flex: 1, maxWidth: 480, display: 'flex', alignItems: 'center', background: '#F1F5F9', borderRadius: 9999, padding: '6px 16px', gap: 8 }}>
             <Search style={{ color: '#94A3B8', fontSize: 20 }} />
@@ -94,7 +97,9 @@ export default function Navbar() {
               <>
                 <Tooltip title="Wishlist">
                   <IconButton component={Link} to="/wishlist" size="small" sx={{ color: '#64748B' }}>
-                    <Favorite />
+                    <Badge badgeContent={wishlistCount} color="error" max={9} sx={{ '& .MuiBadge-badge': { background: 'linear-gradient(135deg, #FF4B72, #7C4DFF)', color: '#fff', fontWeight: 800 } }}>
+                      <Favorite />
+                    </Badge>
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Cart">
@@ -142,7 +147,7 @@ export default function Navbar() {
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => navigate('/auth')}
-                style={{ background: 'linear-gradient(135deg,#5B2EFF,#00C6FF)', color: '#fff', border: 'none', borderRadius: 9999, padding: '8px 20px', fontWeight: 600, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 16px rgba(91,46,255,0.3)' }}
+                style={{ background: 'linear-gradient(135deg,#5B2EFF,#00C6FF)', color: '#fff', border: 'none', borderRadius: 9999, padding: '8px 20px', fontWeight: 600, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 166px rgba(91,46,255,0.3)' }}
               >
                 Sign In
               </motion.button>

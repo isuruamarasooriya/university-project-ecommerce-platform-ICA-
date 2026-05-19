@@ -61,6 +61,8 @@ public class ProductService {
         product.setTags(request.getTags());
         product.setImageUrl(request.getImageUrl());
         product.setSellerId(seller.getId());
+        product.setStock(request.getStock() != null ? request.getStock() : 10);
+        product.setDiscount(request.getDiscount() != null ? request.getDiscount() : 0.0);
 
         return productRepository.save(product);
     }
@@ -82,6 +84,8 @@ public class ProductService {
         existingProduct.setCategory(request.getCategory());
         existingProduct.setTags(request.getTags());
         existingProduct.setImageUrl(request.getImageUrl());
+        existingProduct.setStock(request.getStock() != null ? request.getStock() : existingProduct.getStock());
+        existingProduct.setDiscount(request.getDiscount() != null ? request.getDiscount() : existingProduct.getDiscount());
 
         return productRepository.save(existingProduct);
     }
