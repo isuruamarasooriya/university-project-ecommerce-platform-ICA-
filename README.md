@@ -1,103 +1,52 @@
-# 🛒 Multi-Vendor E-Commerce Platform
+# 💎 Customer Profile Redesign & Security Integration
 
-A full-stack, enterprise-grade e-commerce marketplace platform built with **Spring Boot** (Java/MongoDB backend) and **React** (Vite frontend with Material UI and Framer Motion). The project implements a robust role-based access control system supporting **Customers**, **Sellers**, and **Admins**.
-
----
-
-## 🎨 Premium User Experience Features
-
-We recently upgraded the core **Customer Profile View** to a modern, premium light-mode dashboard designed for visual excellence:
-
-*   **Mesh Gradient Welcome Banner:** Displays dynamic welcome cards with personalized avatar rings and Gold Membership loyalty badges.
-*   **Metric Indicators:** Displays visual count grids for total orders, wishlist counts, active deliveries, and loyalty reward points.
-*   **Linear Tracking Bars:** Real-time visual tracking of orders (Pending Approval ➔ In Production ➔ Out for Delivery ➔ Delivered).
-*   **Virtual VISA Payment Card:** Interactive card interface featuring masked account numbers, bank details, cardholder name, and IFSC codes.
-*   **Security & 2FA Suite:** Fully functional API-connected password updates and database-persisted Two-Factor Authentication switch controls.
+This branch (`dinuka`) contains the complete redesign of the customer profile dashboard into a premium, light-mode interface, along with the corresponding backend security and order features.
 
 ---
 
-## 🚀 Key Functional Modules
+## 🎨 Frontend Updates (React)
 
-### 👤 For Customers
-*   **JWT Auth System:** Secure login, registration, and session token storage.
-*   **Dynamic Marketplace:** Grid views of vendor products, details, and price filtering.
-*   **Interactive Shopping Cart & Wishlist:** Real-time adding, removing, and quantity controls.
-*   **Order & Progress Panel:** Seamless order checkouts and order status details.
-
-### 💼 For Sellers
-*   **Seller Analytics Dashboard:** Financial stats and inventory summary.
-*   **Product Catalog Management:** Add, update, delete, and view product lists.
-*   **Order Fulfillment:** View received customer orders and update shipping states.
-
----
-
-## 🛠️ Technology Stack
-
-| Layer | Technologies Used |
-| :--- | :--- |
-| **Frontend** | React (Vite), Material UI (MUI), Framer Motion, Axios, React Hot Toast |
-| **Backend** | Java 21, Spring Boot, Spring Security (JWT), Spring Data MongoDB |
-| **Database** | MongoDB (Local / Atlas Cloud) |
-| **Build Tools** | Maven, NPM |
+*   **Responsive Dashboard Layout (`Profile.jsx`)**:
+    *   Replaced inline styling and broken Tailwind wrappers with Material UI's `Box` model and dynamic responsive grids (`xs`, `sm`, `md`, `lg`, `xl`).
+    *   Transitioned the theme to a premium light mode (Slate-50 background, white cards, soft borders, and slate text colors).
+*   **Mesh Gradient Hero Section**:
+    *   Personalized welcome message and user initials avatar with glowing borders.
+    *   Gold Membership badge indicating loyalty tier.
+    *   Logout and Quick Update buttons with smooth animations.
+*   **Metric Grid Cards**:
+    *   Displays real-time customer statistics: *Total Orders*, *Saved Wishlist Items*, *Active Deliveries*, and *Reward Points*.
+*   **Interactive Visual Payment Card**:
+    *   Visa-inspired premium credit card interface displaying bank name, masked account number, holder name, and IFSC code.
+*   **Navigation Tabs**:
+    *   **My Profile**: Dashboard overview with recent activities and payment card.
+    *   **My Orders**: Collapsible listing of ordered items and active shipping progress tracking.
+    *   **Wishlist**: Grid view of saved items with quick "Add to Cart" and delete actions.
+    *   **Payment Settings**: Form to update banking details.
+    *   **Security & 2FA**: Working forms to update passwords and toggle database-persisted Two-Factor Authentication.
+    *   **Activity Timeline**: Log listing of account events.
 
 ---
 
-## ⚙️ Getting Started
+## ☕ Backend Updates (Spring Boot)
 
-### Prerequisites
-*   **JDK 21** installed.
-*   **Node.js (v18+)** and **NPM** installed.
-*   **MongoDB** running locally on port `27017` (or MongoDB Atlas connection string).
-
----
-
-### 1. Backend Setup (Spring Boot)
-
-1.  Navigate to the project root directory.
-2.  Open `src/main/resources/application.properties` and configure your MongoDB connection:
-    ```properties
-    spring.data.mongodb.uri=mongodb://localhost:27017/productsell
-    ```
-3.  Build and run the Spring Boot application using your IDE (Eclipse/IntelliJ) or Maven:
-    ```bash
-    mvn spring-boot:run
-    ```
+*   **Password Management**:
+    *   Implemented `PUT /api/user/change-password` endpoint.
+    *   Verifies current password matches using BCrypt `PasswordEncoder` before updating database hash.
+*   **Two-Factor Authentication (2FA)**:
+    *   Implemented `GET /api/user/2fa` and `PUT /api/user/2fa` endpoints to persist 2FA switch states.
+*   **Order Cancellation**:
+    *   Implemented `PUT /api/orders/{id}/cancel` endpoint to cancel pending orders.
+*   **Product Reviews**:
+    *   Created `ReviewController.java`, `Review.java`, and `ReviewRepository.java` to support saving and retrieving product reviews.
 
 ---
 
-### 2. Frontend Setup (React Vite)
+## 📁 Key File Changes
 
-1.  Navigate to the `frontend` directory:
-    ```bash
-    cd frontend
-    ```
-2.  Install dependencies:
-    ```bash
-    npm install
-    ```
-3.  Run the local development server:
-    ```bash
-    npm run dev
-    ```
-4.  Open [http://localhost:5174](http://localhost:5174) in your browser.
-
----
-
-## 🛡️ Core API Endpoints
-
-### User & Security APIs (`/api/user`)
-*   `GET /wishlist` - Fetch all saved wishlist products.
-*   `POST /wishlist/{productId}` - Save product to wishlist.
-*   `DELETE /wishlist/{productId}` - Remove product from wishlist.
-*   `GET /bank-details` - Fetch payment/bank details.
-*   `PUT /bank-details` - Update card payment details.
-*   `PUT /change-password` - Updates secure password.
-*   `GET /2fa` - Checks Two-Factor authentication status.
-*   `PUT /2fa?enabled={bool}` - Toggle 2FA in database.
-
-### Orders APIs (`/api/orders`)
-*   `POST /checkout` - Place new order from cart.
-*   `GET /myorders` - Get customer's orders history.
-*   `PUT /{id}/cancel` - Cancel a pending customer order.
-*   `GET /seller-orders` - Get orders placed with a seller.
-*   `PUT /{id}/status` - Update shipping state of order.
+*   `frontend/src/pages/Profile.jsx` - Refactored responsive layout, styles, and added security/2FA API calls.
+*   `src/main/java/com/ecommerce/controller/UserController.java` - Added endpoints for changing passwords and toggling 2FA.
+*   `src/main/java/com/ecommerce/service/UserService.java` - Implemented password checks and 2FA database save states.
+*   `src/main/java/com/ecommerce/model/User.java` - Added `twoFactorEnabled` boolean property.
+*   `src/main/java/com/ecommerce/dto/ChangePasswordRequest.java` - New DTO for password payloads.
+*   `src/main/java/com/ecommerce/controller/ReviewController.java` - New controller for product reviews.
+*   `src/main/java/com/ecommerce/model/Review.java` - New MongoDB model for reviews.
